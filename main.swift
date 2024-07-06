@@ -70,21 +70,23 @@ final class TodoManager {
     return todos
   }
 
-  func listTodos() {
+  func listTodos() -> Bool {
     guard let todos = loadTodos() else {
-      return
+      return false
     }
 
     print("\nYour todos:")
 
     if todos.isEmpty {
       print("  No todos yet, add some!")
-      return
+      return false
     }
 
     for (index, todo) in todos.enumerated() {
       print("  \(index + 1). \(todo)")
     }
+
+    return true
   }
 
   func addTodo(with title: String) {
@@ -99,7 +101,25 @@ final class TodoManager {
     print("\nTodo added!")
   }
 
-  // TODO: Implement toggleCompletion and deleteTodo methods
+  func toggleCompletion(forTodoAtIndex number: Int) {
+    guard var todos = loadTodos() else {
+      return
+    }
+
+    let index = number - 1
+
+    guard index >= 0 && index < todos.count else {
+      print("\nInvalid todo number, please try again.")
+      return
+    }
+
+    todos[index].isCompleted.toggle()
+    cache.save(todos: todos)
+
+    print("\nTodo completion status toggled!")
+  }
+
+  // TODO: Implement deleteTodo method
 }
 
 
@@ -112,6 +132,7 @@ final class App {
   enum Command: String {
     case add
     case list
+    case toggle
     case exit
   }
 
@@ -125,7 +146,7 @@ final class App {
     print("Welcome to the Todo CLI!")
 
     while true {
-      print("\nWhat would you like to do? (add, list, exit):", terminator: " ")
+      print("\nWhat would you like to do? (add, list, toggle, exit):", terminator: " ")
 
       guard let command = Command(rawValue: readLine() ?? "") else {
         continue
@@ -149,7 +170,22 @@ final class App {
 
           todoManager.addTodo(with: title)
         case .list:
-          todoManager.listTodos()
+          _ = todoManager.listTodos()
+        case .toggle:
+          let success = todoManager.listTodos()
+
+          if !success {
+            continue
+          }
+
+          print("\nEnter the number of the todo to toggle:", terminator: " ")
+
+          guard let number = Int(readLine() ?? "") else {
+            print("\nInvalid todo number, please try again.")
+            continue
+          }
+
+          todoManager.toggleCompletion(forTodoAtIndex: number)
         case .exit:
           print("\nGoodbye!")
         return
