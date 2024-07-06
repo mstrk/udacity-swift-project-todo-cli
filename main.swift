@@ -95,6 +95,8 @@ final class TodoManager {
     let todo = Todo(title: title)
     todos.append(todo)
     cache.save(todos: todos)
+
+    print("\nTodo added!")
   }
 
   // TODO: Implement toggleCompletion and deleteTodo methods
@@ -146,8 +148,6 @@ final class App {
           }
 
           todoManager.addTodo(with: title)
-
-          print("\nTodo added!")
         case .list:
           todoManager.listTodos()
         case .exit:
