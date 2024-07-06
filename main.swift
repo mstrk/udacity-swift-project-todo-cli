@@ -118,8 +118,22 @@ final class TodoManager {
 
     print("\nTodo completion status toggled!")
   }
+  
+  func deleteTodo(atIndex index: Int) {
+    guard var todos = loadTodos() else {
+      return
+    }
 
-  // TODO: Implement deleteTodo method
+    guard index >= 0 && index < todos.count else {
+      print("\nInvalid todo number, please try again.")
+      return
+    }
+
+    todos.remove(at: index)
+    cache.save(todos: todos)
+
+    print("\nTodo deleted!")
+  }
 }
 
 
@@ -133,6 +147,7 @@ final class App {
     case add
     case list
     case toggle
+    case delete
     case exit
   }
 
@@ -140,6 +155,17 @@ final class App {
 
   init(todoManager: TodoManager) {
     self.todoManager = todoManager
+  }
+
+  func promptForTodoNumber() -> Int? {
+    print("\nEnter the number of the todo:", terminator: " ")
+
+    guard let number = Int(readLine() ?? "") else {
+      print("\nInvalid todo number, please try again.")
+      return nil
+    }
+
+    return number
   }
 
   func run() {
@@ -177,20 +203,27 @@ final class App {
           if !success {
             continue
           }
-
-          print("\nEnter the number of the todo to toggle:", terminator: " ")
-
-          guard let number = Int(readLine() ?? "") else {
-            print("\nInvalid todo number, please try again.")
+          
+          guard let number = promptForTodoNumber() else {
             continue
           }
 
           todoManager.toggleCompletion(forTodoAtIndex: number)
+        case .delete:
+          let success = todoManager.listTodos()
+
+          if !success {
+            continue
+          }
+          
+          guard let number = promptForTodoNumber() else {
+            continue
+          }
+
+          todoManager.deleteTodo(atIndex: number - 1)
         case .exit:
           print("\nGoodbye!")
         return
-
-        // TODO: Implement toggle and delete cases
       }
     }
   }
