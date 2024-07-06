@@ -14,7 +14,8 @@ struct Todo: CustomStringConvertible {
   }
 
   var description: String {
-    return "\(title) - \(isCompleted ? "Completed" : "Not Completed")"
+    let completionEmoji = isCompleted ? "\u{2705}" : "\u{274C}"
+    return "\(completionEmoji) \(title)"
   }
 }
 
@@ -63,7 +64,7 @@ final class TodoManager {
 
   private func loadTodos() -> [Todo]? {
     guard let todos = cache.load() else {
-      print("\nSomething went wrong, we're unable to load todos.")
+      print("\n\u{2049} Something went wrong, we're unable to load todos.")
       return nil
     }
 
@@ -75,7 +76,7 @@ final class TodoManager {
       return false
     }
 
-    print("\nYour todos:")
+    print("\n\u{1F4DD} Your todos:")
 
     if todos.isEmpty {
       print("  No todos yet, add some!")
@@ -98,7 +99,7 @@ final class TodoManager {
     todos.append(todo)
     cache.save(todos: todos)
 
-    print("\nTodo added!")
+    print("\n\u{1F4CC} Todo added!")
   }
 
   func toggleCompletion(forTodoAtIndex number: Int) {
@@ -109,14 +110,14 @@ final class TodoManager {
     let index = number - 1
 
     guard index >= 0 && index < todos.count else {
-      print("\nInvalid todo number, please try again.")
+      print("\n\u{2049} Invalid todo number, please try again.")
       return
     }
 
     todos[index].isCompleted.toggle()
     cache.save(todos: todos)
 
-    print("\nTodo completion status toggled!")
+    print("\n\u{1F504} Todo completion status toggled!")
   }
   
   func deleteTodo(atIndex index: Int) {
@@ -125,14 +126,14 @@ final class TodoManager {
     }
 
     guard index >= 0 && index < todos.count else {
-      print("\nInvalid todo number, please try again.")
+      print("\n\u{2049} Invalid todo number, please try again.")
       return
     }
 
     todos.remove(at: index)
     cache.save(todos: todos)
 
-    print("\nTodo deleted!")
+    print("\n\u{1F5D1}  Todo deleted!")
   }
 }
 
@@ -161,7 +162,7 @@ final class App {
     print("\nEnter the number of the todo:", terminator: " ")
 
     guard let number = Int(readLine() ?? "") else {
-      print("\nInvalid todo number, please try again.")
+      print("\n\u{2049} Invalid todo number, please try again.")
       return nil
     }
 
@@ -169,10 +170,10 @@ final class App {
   }
 
   func run() {
-    print("Welcome to the Todo CLI!")
+    print("\u{1F31F} Welcome to the Todo CLI! \u{1F31F}")
 
     while true {
-      print("\nWhat would you like to do? (add, list, toggle, exit):", terminator: " ")
+      print("\nWhat would you like to do? (add, list, toggle, delete, exit):", terminator: " ")
 
       guard let command = Command(rawValue: readLine() ?? "") else {
         continue
@@ -182,7 +183,7 @@ final class App {
         case .add:
           print("\nEnter todo title:", terminator: " ")
 
-          let invalidPrompt = "\nInvalid title, please try again."
+          let invalidPrompt = "\n\u{2049} Invalid title, please try again."
 
           guard let title = readLine() else {
             print(invalidPrompt)
@@ -222,7 +223,7 @@ final class App {
 
           todoManager.deleteTodo(atIndex: number - 1)
         case .exit:
-          print("\nGoodbye!")
+          print("\n\u{1F44B} Goodbye!")
         return
       }
     }
