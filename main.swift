@@ -2,20 +2,19 @@ import Foundation
 
 // * Create the `Todo` struct.
 // * Ensure it has properties: id (UUID), title (String), and isCompleted (Bool).
-struct Todo: CustomStringConvertible {
+struct Todo: CustomStringConvertible, Codable {
   let id: UUID
   let title: String
   var isCompleted: Bool
+  var description: String {
+    let completionEmoji = isCompleted ? "\u{2705}" : "\u{274C}"
+    return "\(completionEmoji) \(title)"
+  }
 
   init(title: String, isCompleted: Bool = false) {
     self.id = UUID()
     self.title = title
     self.isCompleted = isCompleted
-  }
-
-  var description: String {
-    let completionEmoji = isCompleted ? "\u{2705}" : "\u{274C}"
-    return "\(completionEmoji) \(title)"
   }
 }
 
@@ -30,9 +29,44 @@ protocol Cache {
 // `FileSystemCache`: This implementation should utilize the file system 
 // to persist and retrieve the list of todos. 
 // Utilize Swift's `FileManager` to handle file operations.
-// final class JSONFileManagerCache: Cache {
-//   // TODO: Implement the JSONFileManagerCache
-// }
+final class JSONFileManagerCache: Cache {
+  private let fileURL: URL
+
+  init(fileName: String) {
+    let localDirectory = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+    fileURL = localDirectory.appendingPathComponent(fileName).appendingPathExtension("json")
+  }
+
+  func save(todos: [Todo]) {
+    // Ensure the file exists before writing to it
+    if !FileManager.default.fileExists(atPath: fileURL.path) {
+      FileManager.default.createFile(atPath: fileURL.path, contents: nil, attributes: nil)
+    }
+
+    do {
+      let data = try JSONEncoder().encode(todos)
+      try data.write(to: fileURL)
+    } catch {
+      print("\n\u{2049} Unable to save todos to file.")
+    }
+  }
+
+  func load() -> [Todo]? {
+    guard FileManager.default.fileExists(atPath: fileURL.path) else {
+      // if the file doesn't exist, create one with an empty array of todos
+      save(todos: [])
+      return []
+    }
+
+    do {
+      let data = try Data(contentsOf: fileURL)
+      return try JSONDecoder().decode([Todo].self, from: data)
+    } catch {
+      print("\n\u{2049} Unable to load todos from file.")
+      return nil
+    }
+  }
+}
 
 // `InMemoryCache`: : Keeps todos in an array or similar structure during the session. 
 // This won't retain todos across different app launches, 
@@ -231,7 +265,8 @@ final class App {
 }
 
 // Start the app
-let cache = InMemoryCache()
+// let cache = InMemoryCache()
+let cache = JSONFileManagerCache(fileName: "todos")
 let todoManager = TodoManager(cache: cache)
 let app = App(todoManager: todoManager)
 app.run()
