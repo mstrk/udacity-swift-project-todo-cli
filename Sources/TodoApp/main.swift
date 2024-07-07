@@ -132,8 +132,6 @@ final class TodoManager {
     let todo = Todo(title: title)
     todos.append(todo)
     cache.save(todos: todos)
-
-    print("\n\u{1F4CC} Todo added!")
   }
 
   func toggleCompletion(forTodoAtIndex index: Int) {
@@ -148,8 +146,6 @@ final class TodoManager {
 
     todos[index].isCompleted.toggle()
     cache.save(todos: todos)
-
-    print("\n\u{1F504} Todo completion status toggled!")
   }
   
   func deleteTodo(atIndex index: Int) {
@@ -164,8 +160,6 @@ final class TodoManager {
 
     todos.remove(at: index)
     cache.save(todos: todos)
-
-    print("\n\u{1F5D1}  Todo deleted!")
   }
 }
 
@@ -228,6 +222,7 @@ final class App {
           }
 
           todoManager.addTodo(with: title)
+          print("\n\u{1F4CC} Todo added!")
         case .list:
           _ = todoManager.listTodos()
         case .toggle:
@@ -242,6 +237,7 @@ final class App {
           }
 
           todoManager.toggleCompletion(forTodoAtIndex: number - 1)
+          print("\n\u{1F504} Todo completion status toggled!")
         case .delete:
           let success = todoManager.listTodos()
 
@@ -254,6 +250,7 @@ final class App {
           }
 
           todoManager.deleteTodo(atIndex: number - 1)
+          print("\n\u{1F5D1}  Todo deleted!")
         case .exit:
           print("\n\u{1F44B} Goodbye!")
         return
