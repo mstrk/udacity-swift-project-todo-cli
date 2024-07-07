@@ -96,38 +96,17 @@ final class TodoManager {
     self.cache = cache
   }
 
-  private func loadTodos() -> [Todo]? {
+  func listTodos() -> [Todo] {
     guard let todos = cache.load() else {
       print("\n\u{2049} Something went wrong, we're unable to load todos.")
-      return nil
+      return []
     }
 
     return todos
   }
 
-  func listTodos() -> Bool {
-    guard let todos = loadTodos() else {
-      return false
-    }
-
-    print("\n\u{1F4DD} Your todos:")
-
-    if todos.isEmpty {
-      print("  No todos yet, add some!")
-      return false
-    }
-
-    for (index, todo) in todos.enumerated() {
-      print("  \(index + 1). \(todo)")
-    }
-
-    return true
-  }
-
   func addTodo(with title: String) {
-    guard var todos = loadTodos() else {
-      return
-    }
+    var todos = listTodos()
 
     let todo = Todo(title: title)
     todos.append(todo)
@@ -135,9 +114,7 @@ final class TodoManager {
   }
 
   func toggleCompletion(forTodoAtIndex index: Int) {
-    guard var todos = loadTodos() else {
-      return
-    }
+    var todos = listTodos()
 
     guard index >= 0 && index < todos.count else {
       print("\n\u{2049} Invalid todo number, please try again.")
@@ -149,9 +126,7 @@ final class TodoManager {
   }
   
   func deleteTodo(atIndex index: Int) {
-    guard var todos = loadTodos() else {
-      return
-    }
+    var todos = listTodos()
 
     guard index >= 0 && index < todos.count else {
       print("\n\u{2049} Invalid todo number, please try again.")
@@ -195,6 +170,19 @@ final class App {
     return number
   }
 
+  func promptTodoList(todos: [Todo]) {
+    print("\n\u{1F4DD} Your todos:")
+
+    if todos.isEmpty {
+      print("  No todos yet, add some!")
+      return
+    }
+
+    for (index, todo) in todos.enumerated() {
+      print("  \(index + 1). \(todo)")
+    }
+  }
+
   func run() {
     print("\u{1F31F} Welcome to the Todo CLI! \u{1F31F}")
 
@@ -224,13 +212,16 @@ final class App {
           todoManager.addTodo(with: title)
           print("\n\u{1F4CC} Todo added!")
         case .list:
-          _ = todoManager.listTodos()
+          let todos = todoManager.listTodos()
+          promptTodoList(todos: todos)
         case .toggle:
-          let success = todoManager.listTodos()
+          let todos = todoManager.listTodos()
 
-          if !success {
+          if todos.isEmpty {
             continue
           }
+
+          promptTodoList(todos: todos)
           
           guard let number = promptForTodoNumber() else {
             continue
@@ -239,11 +230,13 @@ final class App {
           todoManager.toggleCompletion(forTodoAtIndex: number - 1)
           print("\n\u{1F504} Todo completion status toggled!")
         case .delete:
-          let success = todoManager.listTodos()
+          let todos = todoManager.listTodos()
 
-          if !success {
+          if todos.isEmpty {
             continue
           }
+
+          promptTodoList(todos: todos)
           
           guard let number = promptForTodoNumber() else {
             continue

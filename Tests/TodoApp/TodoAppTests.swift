@@ -32,16 +32,15 @@ final class AppTests: XCTestCase {
   }
 
   func testTodosManager() {
-    let cache = InMemoryCache()
-    let todoManager = TodoManager(cache: cache)
+    let todoManager = TodoManager(cache: InMemoryCache())
 
     todoManager.addTodo(with: "Test Todo")
-    XCTAssertEqual(cache.load()?.first?.isCompleted, false)
+    XCTAssertEqual(todoManager.listTodos().first?.isCompleted, false)
 
     todoManager.toggleCompletion(forTodoAtIndex: 0)
-    XCTAssertEqual(cache.load()?.first?.isCompleted, true)
+    XCTAssertEqual(todoManager.listTodos().first?.isCompleted, true)
 
     todoManager.deleteTodo(atIndex: 0)
-    XCTAssertEqual(cache.load()?.count, 0)
+    XCTAssertEqual(todoManager.listTodos().count, 0)
   }
 }
