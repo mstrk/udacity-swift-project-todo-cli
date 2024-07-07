@@ -136,12 +136,10 @@ final class TodoManager {
     print("\n\u{1F4CC} Todo added!")
   }
 
-  func toggleCompletion(forTodoAtIndex number: Int) {
+  func toggleCompletion(forTodoAtIndex index: Int) {
     guard var todos = loadTodos() else {
       return
     }
-
-    let index = number - 1
 
     guard index >= 0 && index < todos.count else {
       print("\n\u{2049} Invalid todo number, please try again.")
@@ -243,7 +241,7 @@ final class App {
             continue
           }
 
-          todoManager.toggleCompletion(forTodoAtIndex: number)
+          todoManager.toggleCompletion(forTodoAtIndex: number - 1)
         case .delete:
           let success = todoManager.listTodos()
 
